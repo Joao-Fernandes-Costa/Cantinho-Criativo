@@ -147,3 +147,63 @@ footer {
     color: #fff;
     margin-top: 30px;
 }
+/* public/style.css - Adicionar no final */
+.comments-section {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.comments-section h4 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.comments-list .comment-item {
+    background-color: #f9f9f9;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    border: 1px solid #eaeaea;
+}
+
+.comment-item p {
+    margin: 0 0 5px 0;
+    font-size: 0.9em;
+    word-wrap: break-word; /* Para quebrar palavras longas */
+}
+.comment-item p:last-child {
+    margin-bottom: 0;
+}
+
+.comment-item strong {
+    color: #2a4262; /* Um pouco mais escuro que o texto do comentário */
+}
+ .comment-item small {
+     color: #777;
+     font-size: 0.8em;
+ }
+
+.add-comment-form textarea {
+    width: calc(100% - 22px); /* Ajuste para padding e borda */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    resize: vertical;
+    min-height: 40px;
+}
+
+.add-comment-form button {
+    background-color: #5cb85c; /* Verde para comentar */
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+
+.add-comment-form button:hover {
+    background-color: #4cae4c;
+}
