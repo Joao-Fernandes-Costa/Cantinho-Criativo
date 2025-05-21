@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cantinho Criativo - Exemplo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>🎨 Cantinho Criativo (Exemplo com Auth) 🛠️</h1>
+        <nav id="auth-nav">
+            </nav>
+    </header>
+
+    <main>
+        <section id="auth-section">
+            <div id="login-register-forms">
+                <form id="loginForm" class="auth-form">
+                    <h2>Login</h2>
+                    <div>
+                        <label for="loginEmailOrUsername">Email ou Usuário:</label>
+                        <input type="text" id="loginEmailOrUsername" name="loginEmailOrUsername" required>
+                    </div>
+                    <div>
+                        <label for="loginPassword">Senha:</label>
+                        <input type="password" id="loginPassword" name="loginPassword" required>
+                    </div>
+                    <button type="submit">Login</button>
+                    <p class="toggle-form-link">Não tem uma conta? <a href="#" id="showRegister">Registre-se</a></p>
+                </form>
+
+                <form id="registerForm" class="auth-form" style="display:none;">
+                    <h2>Registrar</h2>
+                    <div>
+                        <label for="registerUsername">Nome de Usuário:</label>
+                        <input type="text" id="registerUsername" name="registerUsername" required minlength="3">
+                    </div>
+                    <div>
+                        <label for="registerEmail">Email:</label>
+                        <input type="email" id="registerEmail" name="registerEmail" required>
+                    </div>
+                    <div>
+                        <label for="registerPassword">Senha (mín. 6 caracteres):</label>
+                        <input type="password" id="registerPassword" name="registerPassword" required minlength="6">
+                    </div>
+                    <button type="submit">Registrar</button>
+                    <p class="toggle-form-link">Já tem uma conta? <a href="#" id="showLogin">Faça Login</a></p>
+                </form>
+            </div>
+
+            <div id="user-info" style="display:none;">
+                <p id="welcomeMessage"></p>
+                <button id="logoutButton">Logout</button>
+            </div>
+        </section>
+
+        <section id="form-section" style="display:none;">
+            <h2>Adicionar Novo Projeto</h2>
+            <form id="addProjectForm">
+                <div>
+                    <label for="title">Título:</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+                <div>
+                    <label for="description">Descrição:</label>
+                    <textarea id="description" name="description" rows="3" required></textarea>
+                </div>
+                <div>
+                    <label for="category">Categoria:</label>
+                    <input type="text" id="category" name="category" placeholder="Ex: Costura">
+                </div>
+                <div>
+                    <label for="imageUrl">URL da Imagem (opcional):</label>
+                    <input type="url" id="imageUrl" name="imageUrl" placeholder="https://exemplo.com/imagem.png">
+                </div>
+                <button type="submit">Adicionar Projeto</button>
+            </form>
+        </section>
+
+        <section id="projects-section">
+            <h2>Projetos Recentes</h2>
+            <div id="projectsGrid">
+                <p>Carregando projetos...</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Cantinho Criativo - Versão Simplificada</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

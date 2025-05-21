@@ -1,0 +1,149 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+}
+
+header {
+    background-color: #3a506b; /* Azul petróleo */
+    color: #fff;
+    padding: 1rem 0;
+    text-align: center;
+    border-bottom: 4px solid #fca311; /* Laranja queimado */
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2em;
+}
+
+main {
+    padding: 20px;
+    max-width: 900px;
+    margin: 20px auto;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border-radius: 8px;
+}
+
+#form-section, #projects-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
+#form-section h2, #projects-section h2 {
+    color: #3a506b;
+    border-bottom: 2px solid #fca311;
+    padding-bottom: 10px;
+    margin-top: 0;
+}
+
+#addProjectForm div {
+    margin-bottom: 15px;
+}
+
+#addProjectForm label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+#addProjectForm input[type="text"],
+#addProjectForm input[type="url"],
+#addProjectForm textarea {
+    width: calc(100% - 22px); /* Ajuste para padding e borda */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#addProjectForm textarea {
+    resize: vertical;
+}
+
+#addProjectForm button {
+    background-color: #fca311;
+    color: #333;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+#addProjectForm button:hover {
+    background-color: #e0900a;
+}
+
+#projectsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.project-card {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
+}
+
+.project-card img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.project-card h3 {
+    color: #3a506b;
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+.project-card p {
+    font-size: 0.9em;
+    margin-bottom: 5px;
+}
+
+.project-card .category {
+    font-size: 0.8em;
+    color: #666;
+    background-color: #e9ecef;
+    padding: 2px 6px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.project-card .delete-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.8em;
+    margin-top: 10px;
+}
+.project-card .delete-btn:hover {
+    background-color: #c82333;
+}
+
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #333;
+    color: #fff;
+    margin-top: 30px;
+}
