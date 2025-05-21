@@ -1,24 +1,58 @@
 const express = require('express');
 const router = express.Router();
 const Project = require('../models/Project');
-const authMiddleware = require('../middleware/authMiddleware'); // Importa o middleware
+const authMiddleware = require('../middleware/authMiddleware');
+const multer = require('multer');
+const path = require('path'); // Módulo 'path' do Node.js
 
-// GET: Listar todos os projetos (PÚBLICO - não precisa de auth)
+// Configuração do Multer para armazenamento de arquivos
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/'); // Pasta onde os arquivos serão salvos
+    },
+    filename: function (req, file, cb) {
+        // Define o nome do arquivo: campo original + timestamp + extensão original
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+    }
+});
+
+// Filtro para aceitar apenas imagens
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/gif') {
+        cb(null, true); // Aceita o arquivo
+    } else {
+        cb(new Error('Apenas arquivos de imagem (JPEG, PNG, GIF) são permitidos!'), false); // Rejeita o arquivo
+    }
+};
+
+const upload = multer({
+    storage: storage,
+    limits: {
+        fileSize: 1024 * 1024 * 5 // Limite de 5MB por arquivo
+    },
+    fileFilter: fileFilter
+});
+
+// GET: Listar todos os projetos (PÚBLICO)
 router.get('/', async (req, res) => {
     try {
-        const projects = await Project.find().sort({ createdAt: -1 }).populate('user', 'username email'); // Adiciona 'populate' para ver nome do usuário
+        const projects = await Project.find().sort({ createdAt: -1 }).populate('user', 'username email');
         res.json(projects);
     } catch (err) {
         res.status(500).json({ message: 'Erro ao buscar projetos: ' + err.message });
     }
 });
 
-// POST: Criar um novo projeto (PROTEGIDO - requer login)
-router.post('/', authMiddleware, async (req, res) => { // Adiciona o authMiddleware aqui
-    const { title, description, category, imageUrl } = req.body;
+// POST: Criar um novo projeto (PROTEGIDO - requer login e upload de imagem)
+// Usamos upload.single('projectImage') onde 'projectImage' deve ser o nome do campo <input type="file" name="projectImage"> no frontend
+router.post('/', authMiddleware, upload.single('projectImage'), async (req, res) => {
+    const { title, description, category } = req.body;
 
     if (!title || !description) {
         return res.status(400).json({ message: 'Título e descrição são obrigatórios.' });
+    }
+    if (!req.file) { // Verifica se um arquivo foi enviado
+        return res.status(400).json({ message: 'Por favor, envie uma imagem para o projeto.' });
     }
 
     try {
@@ -26,26 +60,39 @@ router.post('/', authMiddleware, async (req, res) => { // Adiciona o authMiddlew
             title,
             description,
             category,
-            imageUrl: imageUrl || undefined,
-            user: req.user.id // Associa o projeto ao ID do usuário logado (vindo do token)
+            imageUrl: '/uploads/' + req.file.filename, // Salva o caminho da imagem
+            user: req.user.id
         });
 
         const savedProject = await newProject.save();
-        await savedProject.populate('user', 'username email'); // Popula após salvar para retornar
+        await savedProject.populate('user', 'username email');
         res.status(201).json(savedProject);
     } catch (err) {
+        // Se houver erro após o upload (ex: validação do Mongoose), o arquivo já foi salvo.
+        // Em um cenário de produção, você poderia querer deletar o arquivo órfão aqui.
+        console.error("Erro ao salvar projeto no DB:", err);
         res.status(400).json({ message: 'Erro ao salvar projeto: ' + err.message });
     }
+}, (error, req, res, next) => { // Middleware de tratamento de erro específico do Multer
+    if (error instanceof multer.MulterError) {
+        // Erro do Multer (ex: tamanho do arquivo)
+        return res.status(400).json({ message: "Erro no upload (Multer): " + error.message });
+    } else if (error) {
+        // Outro erro (ex: filtro de arquivo)
+        return res.status(400).json({ message: "Erro no upload: " + error.message });
+    }
+    next();
 });
+
 
 // GET: Obter um projeto específico (PÚBLICO)
 router.get('/:id', async (req, res) => {
+    // ... (código existente sem alterações)
     try {
         const project = await Project.findById(req.params.id).populate('user', 'username email');
         if (!project) return res.status(404).json({ message: 'Projeto não encontrado' });
         res.json(project);
     } catch (err) {
-        // Se o ID não for um ObjectId válido do Mongoose
         if (err.kind === 'ObjectId') {
             return res.status(404).json({ message: 'Projeto não encontrado (ID inválido)' });
         }
@@ -54,8 +101,13 @@ router.get('/:id', async (req, res) => {
 });
 
 // PUT: Atualizar um projeto (PROTEGIDO e apenas o dono)
-router.put('/:id', authMiddleware, async (req, res) => {
-    const { title, description, category, imageUrl } = req.body;
+// A atualização de imagem aqui é mais complexa:
+// 1. Verificar se uma nova imagem foi enviada.
+// 2. Se sim, fazer upload da nova, deletar a antiga do sistema de arquivos.
+// Por simplicidade, este exemplo NÃO implementará a atualização da imagem.
+// Apenas os campos de texto serão atualizáveis.
+router.put('/:id', authMiddleware, async (req, res) => { // Não estamos usando multer aqui para simplificar
+    const { title, description, category } = req.body;
 
     try {
         let project = await Project.findById(req.params.id);
@@ -63,23 +115,22 @@ router.put('/:id', authMiddleware, async (req, res) => {
             return res.status(404).json({ message: 'Projeto não encontrado' });
         }
 
-        // Verifica se o usuário logado é o dono do projeto
         if (project.user.toString() !== req.user.id) {
             return res.status(401).json({ message: 'Não autorizado a editar este projeto.' });
         }
 
-        // Atualiza os campos
         if (title) project.title = title;
         if (description) project.description = description;
         if (category) project.category = category;
-        if (imageUrl) project.imageUrl = imageUrl;
-        // project.updatedAt = Date.now(); // Mongoose faz isso se timestamps: true no schema
+        // NOTA: Para atualizar a imagem, você precisaria adicionar upload.single() aqui,
+        // obter req.file, salvar o novo caminho, e opcionalmente deletar o arquivo antigo project.imageUrl do sistema de arquivos.
 
         const updatedProject = await project.save();
         await updatedProject.populate('user', 'username email');
         res.json(updatedProject);
 
     } catch (err) {
+        // ... (tratamento de erro existente)
         if (err.kind === 'ObjectId') {
             return res.status(404).json({ message: 'Projeto não encontrado (ID inválido)' });
         }
@@ -88,24 +139,38 @@ router.put('/:id', authMiddleware, async (req, res) => {
 });
 
 // DELETE: Deletar um projeto (PROTEGIDO e apenas o dono)
+// Ao deletar, também devemos remover o arquivo de imagem do servidor.
 router.delete('/:id', authMiddleware, async (req, res) => {
+    const fs = require('fs').promises; // Módulo 'fs' para interagir com o sistema de arquivos
+
     try {
         const project = await Project.findById(req.params.id);
         if (!project) {
             return res.status(404).json({ message: 'Projeto não encontrado para deletar' });
         }
 
-        // Verifica se o usuário logado é o dono do projeto
         if (project.user.toString() !== req.user.id) {
             return res.status(401).json({ message: 'Não autorizado a deletar este projeto.' });
         }
 
-        await project.deleteOne(); // Mongoose v6+ usa deleteOne() em instâncias
-        // Para versões anteriores, poderia ser project.remove()
+        const imagePath = path.join(__dirname, '..', project.imageUrl); // Constrói o caminho absoluto para a imagem
+
+        await project.deleteOne();
+
+        // Tenta deletar o arquivo de imagem associado
+        try {
+            await fs.unlink(imagePath); // Deleta o arquivo
+            console.log(`Imagem ${imagePath} deletada com sucesso.`);
+        } catch (fileError) {
+            // Se o arquivo não existir ou houver outro erro, apenas loga.
+            // Não impede a resposta de sucesso da deleção do projeto no DB.
+            console.error(`Erro ao deletar arquivo de imagem ${imagePath}:`, fileError.message);
+        }
 
         res.json({ message: 'Projeto deletado com sucesso!' });
 
     } catch (err) {
+        // ... (tratamento de erro existente)
         if (err.kind === 'ObjectId') {
             return res.status(404).json({ message: 'Projeto não encontrado (ID inválido)' });
         }

@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cantinho Criativo - Exemplo</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <header>
         <h1>🎨 Cantinho Criativo (Exemplo com Auth) 🛠️</h1>
         <nav id="auth-nav">
-            </nav>
+        </nav>
     </header>
 
     <main>
@@ -71,8 +73,9 @@
                     <input type="text" id="category" name="category" placeholder="Ex: Costura">
                 </div>
                 <div>
-                    <label for="imageUrl">URL da Imagem (opcional):</label>
-                    <input type="url" id="imageUrl" name="imageUrl" placeholder="https://exemplo.com/imagem.png">
+                    <label for="projectImageFile">Imagem do Projeto:</label>
+                    <input type="file" id="projectImageFile" name="projectImage" required
+                        accept="image/png, image/jpeg, image/gif">
                 </div>
                 <button type="submit">Adicionar Projeto</button>
             </form>
@@ -92,4 +95,5 @@
 
     <script src="script.js"></script>
 </body>
+
 </html>

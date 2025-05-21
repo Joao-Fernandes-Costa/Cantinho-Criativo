@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
             projects.forEach(project => {
                 const projectCard = document.createElement('div');
                 projectCard.classList.add('project-card');
-                
+
                 let ownerActions = '';
                 // Verifica se o usuário logado é o dono do projeto
                 // project.user pode ser um objeto populado ou apenas um ID, então verificamos _id se for objeto
@@ -189,8 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const title = document.getElementById('title').value;
             const description = document.getElementById('description').value;
             const category = document.getElementById('category').value;
-            const imageUrl = document.getElementById('imageUrl').value;
-            const projectData = { title, description, category, imageUrl };
+            const projectImageFile = document.getElementById('projectImageFile').files[0]; // Pega o arquivo
 
             const token = getToken();
             if (!token) {
@@ -198,20 +197,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            if (!projectImageFile) { // Validação básica no frontend
+                alert('Por favor, selecione uma imagem para o projeto.');
+                return;
+            }
+
+            // Usa FormData para enviar arquivos e dados de texto
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('description', description);
+            formData.append('category', category);
+            formData.append('projectImage', projectImageFile); // 'projectImage' é o nome do campo esperado pelo multer
+
             try {
                 const response = await fetch(`${apiUrlBase}/projects`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        // NÃO defina 'Content-Type': 'application/json' quando usar FormData.
+                        // O navegador definirá 'multipart/form-data' com o boundary correto.
                         'Authorization': 'Bearer ' + token
                     },
-                    body: JSON.stringify(projectData),
+                    body: formData, // Envia o FormData
                 });
-                const data = await response.json();
+                const data = await response.json(); // Tenta parsear como JSON (backend deve retornar JSON)
+
                 if (!response.ok) {
                     throw new Error(data.message || `HTTP error! status: ${response.status}`);
                 }
-                projectForm.reset();
+                projectForm.reset(); // Limpa o formulário, incluindo o campo de arquivo
                 fetchProjects(); // Atualiza a lista
                 alert('Projeto adicionado com sucesso!');
             } catch (error) {
@@ -220,6 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
 
     if (projectsGrid) {
         projectsGrid.addEventListener('click', async (event) => {
@@ -240,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         });
                         const data = await response.json();
                         if (!response.ok) {
-                             if (response.status === 401 || response.status === 403) { // Não autorizado ou Proibido
+                            if (response.status === 401 || response.status === 403) { // Não autorizado ou Proibido
                                 alert(data.message || 'Você não tem permissão para deletar este projeto.');
                             } else {
                                 throw new Error(data.message || `HTTP error! status: ${response.status}`);
@@ -252,7 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     } catch (error) {
                         console.error('Erro ao deletar projeto:', error);
                         if (!error.message.includes('permissão')) {
-                           alert('Erro ao deletar projeto: ' + error.message);
+                            alert('Erro ao deletar projeto: ' + error.message);
                         }
                     }
                 }
