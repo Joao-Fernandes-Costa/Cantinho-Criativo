@@ -4,19 +4,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cantinho Criativo - Exemplo</title>
+    <title>Cantinho Criativo</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <header>
-        <h1>🎨 Cantinho Criativo (Exemplo com Auth) 🛠️</h1>
-        <nav id="auth-nav">
-        </nav>
+    <header id="main-header">
+        <div class="header-content">
+            <h1>🎨 Cantinho Criativo 🛠️</h1>
+            <nav id="main-navbar">
+                <ul>
+                    {/* O link "Projetos" é controlado pelo script.js para aparecer apenas quando logado */}
+                    <li id="nav-projects-li" style="display:none;"><a href="#projects-section">Projetos</a></li>
+                    <li id="nav-add-project-li" style="display:none;"><a href="#form-section">Adicionar Projeto</a></li>
+                    <li id="nav-auth-li"><a href="#auth-section">Login/Registro</a></li>
+                    <li id="nav-user-welcome-li" style="display:none;"><span id="navbarWelcomeMessage"></span></li>
+                    <li id="nav-logout-li" style="display:none;"><button id="navbarLogoutButton">Logout</button></li>
+                </ul>
+            </nav>
+        </div>
     </header>
 
     <main>
-        <section id="auth-section">
+        {/* A seção de autenticação será a primeira visível por padrão */}
+        <section id="auth-section" class="page-section">
             <div id="login-register-forms">
                 <form id="loginForm" class="auth-form">
                     <h2>Login</h2>
@@ -31,7 +42,6 @@
                     <button type="submit">Login</button>
                     <p class="toggle-form-link">Não tem uma conta? <a href="#" id="showRegister">Registre-se</a></p>
                 </form>
-
                 <form id="registerForm" class="auth-form" style="display:none;">
                     <h2>Registrar</h2>
                     <div>
@@ -50,16 +60,13 @@
                     <p class="toggle-form-link">Já tem uma conta? <a href="#" id="showLogin">Faça Login</a></p>
                 </form>
             </div>
-
-            <div id="user-info" style="display:none;">
-                <p id="welcomeMessage"></p>
-                <button id="logoutButton">Logout</button>
-            </div>
         </section>
 
-        <section id="form-section" style="display:none;">
+        {/* Seção de Adicionar Projeto (começa oculta) */}
+        <section id="form-section" class="page-section" style="display:none;">
             <h2>Adicionar Novo Projeto</h2>
             <form id="addProjectForm">
+                {/* O input hidden para ID de projeto foi REMOVIDO daqui, pois não é necessário ao adicionar */}
                 <div>
                     <label for="title">Título:</label>
                     <input type="text" id="title" name="title" required>
@@ -80,11 +87,13 @@
                 <button type="submit">Adicionar Projeto</button>
             </form>
         </section>
-        <section id="edit-form-section" style="display:none;">
+
+        {/* Seção de Edição de Projeto (começa oculta) */}
+        <section id="edit-form-section" class="page-section" style="display:none;">
             <h2>Editar Projeto</h2>
             <form id="editProjectForm">
-                <input type="hidden" id="editProjectId" name="editProjectId"> {/* Para guardar o ID do projeto sendo
-                editado */}
+                {/* Este é o local CORRETO para o campo oculto de ID do projeto a ser editado */}
+                <input type="hidden" id="editProjectIdField" name="editProjectIdField">
                 <div>
                     <label for="editTitle">Título:</label>
                     <input type="text" id="editTitle" name="editTitle" required>
@@ -100,30 +109,29 @@
                 <div>
                     <label>Imagem Atual:</label>
                     <img id="currentEditImage" src="#" alt="Imagem Atual"
-                        style="max-width: 200px; display: block; margin-bottom: 10px;">
+                        style="max-width: 100px; display: block; margin-bottom: 10px;">
                     <label for="editProjectImageFile">Nova Imagem (opcional):</label>
                     <input type="file" id="editProjectImageFile" name="projectImage"
                         accept="image/png, image/jpeg, image/gif">
-                    {/* 'name' deve ser 'projectImage' para corresponder ao upload.single('projectImage') no backend */}
                 </div>
                 <button type="submit">Salvar Alterações</button>
                 <button type="button" id="cancelEditButton">Cancelar</button>
             </form>
         </section>
-        
-        <section id="projects-section">
+
+        {/* Seção de Projetos (Galeria - começa oculta) */}
+        <section id="projects-section" class="page-section" style="display:none;">
             <h2>Projetos Recentes</h2>
             <div id="projectsGrid">
-                <p>Carregando projetos...</p>
+                {/* Conteúdo será preenchido por JS */}
             </div>
         </section>
     </main>
 
     <footer>
-        <p>&copy; 2025 Cantinho Criativo - Versão Simplificada</p>
+        <p>&copy; 2025 Cantinho Criativo</p>
     </footer>
 
     <script src="script.js"></script>
 </body>
-
 </html>

@@ -1,209 +1,307 @@
-body {
-    font-family: Arial, sans-serif;
+/* Reset básico e box-sizing */
+*, *::before, *::after {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    background-color: #f4f4f4;
+}
+
+html {
+    scroll-behavior: smooth;
+    /* Ajuste este valor para a altura exata do seu #main-header. Ex: 90px */
+    scroll-padding-top: 90px; 
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f2f5; /* Fundo geral da página */
     color: #333;
     line-height: 1.6;
+    /* Padding-top para compensar o header fixo */
+    padding-top: 90px; /* AJUSTE ESTE VALOR para a altura exata do seu #main-header */
 }
 
-header {
+/* Header e Navbar */
+#main-header {
     background-color: #3a506b; /* Azul petróleo */
     color: #fff;
-    padding: 1rem 0;
+    padding: 8px 0; /* Padding vertical */
     text-align: center;
-    border-bottom: 4px solid #fca311; /* Laranja queimado */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    height: auto; /* Altura se ajusta ao conteúdo */
 }
 
-header h1 {
-    margin: 0;
-    font-size: 2em;
+#main-header .header-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px; /* Padding horizontal */
 }
 
+#main-header h1 {
+    margin: 5px 0 8px 0;
+    font-size: 1.7em; /* Ajustado */
+}
+
+#main-navbar ul {
+    list-style-type: none;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+#main-navbar li {
+    margin: 0 6px; /* Espaçamento ajustado */
+}
+
+#main-navbar li a,
+#main-navbar li button {
+    color: #fff;
+    text-decoration: none;
+    padding: 7px 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    font-size: 0.9em; /* Ajustado */
+    line-height: 1.4;
+}
+
+#main-navbar li a:hover,
+#main-navbar li button:hover {
+    background-color: #fca311;
+    color: #333;
+}
+
+#main-navbar li button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+#navbarWelcomeMessage {
+    color: #f0f0f0;
+    font-size: 0.9em;
+    padding: 7px 10px;
+    display: inline-block;
+    line-height: 1.4;
+}
+
+/* Conteúdo Principal (Main) */
 main {
-    padding: 20px;
+    /* O padding-top do body já cuida do espaço do header fixo */
+    width: 100%; /* Garante que main ocupe a largura */
+}
+
+/* Estilos para Seções da Página (QUANDO NÃO FOR A TELA DE LOGIN INICIAL) */
+.page-section {
+    padding: 25px;
+    margin: 0 auto 25px auto; /* Centraliza a seção e adiciona margem inferior */
     max-width: 900px;
-    margin: 20px auto;
     background-color: #fff;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     border-radius: 8px;
 }
 
-#form-section, #projects-section {
-    margin-bottom: 30px;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #fff;
-}
-
-#form-section h2, #projects-section h2 {
+.page-section h2 {
     color: #3a506b;
     border-bottom: 2px solid #fca311;
-    padding-bottom: 10px;
-    margin-top: 0;
+    padding-bottom: 12px;
+    margin-top: 0; /* Já que .page-section tem padding */
+    margin-bottom: 30px;
+    font-size: 1.7em;
 }
 
-#addProjectForm div {
-    margin-bottom: 15px;
+/* Estilização da Seção de Autenticação (Login/Registro) - TELA CHEIA */
+#auth-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centraliza o card #login-register-forms verticalmente */
+    align-items: center;     /* Centraliza o card #login-register-forms horizontalmente */
+    min-height: calc(100vh - 90px); /* Altura da viewport menos header. AJUSTE 90px para altura do seu header. */
+    width: 100%; /* Ocupa toda a largura disponível em 'main' */
+    padding: 20px; /* Espaçamento interno, útil para telas menores */
+    background-color: #f0f2f5; /* Fundo da própria seção, igual ao body */
+    /* Remove estilos de .page-section quando #auth-section está em modo "tela cheia" */
+    max-width: none;
+    box-shadow: none;
+    border-radius: 0;
+    margin-bottom: 0; /* Sem margem inferior quando é a tela principal */
 }
 
-#addProjectForm label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+/* Card de Login/Registro */
+#login-register-forms { 
+    background-color: #ffffff;
+    padding: 35px 40px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 420px; 
+    text-align: center;
 }
 
-#addProjectForm input[type="text"],
-#addProjectForm input[type="url"],
-#addProjectForm textarea {
-    width: calc(100% - 22px); /* Ajuste para padding e borda */
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-#addProjectForm textarea {
-    resize: vertical;
-}
-
-#addProjectForm button {
-    background-color: #fca311;
-    color: #333;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1em;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-}
-
-#addProjectForm button:hover {
-    background-color: #e0900a;
-}
-
-#projectsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
-}
-
-.project-card {
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    padding: 15px;
-    background-color: #f9f9f9;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
-}
-
-.project-card img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 4px;
-    margin-bottom: 10px;
-}
-
-.project-card h3 {
+#auth-section #login-register-forms h2 { /* Títulos dentro do card de login/registro */
+    font-size: 1.9em; /* Maior */
+    margin-bottom: 30px;
     color: #3a506b;
-    margin-top: 0;
-    margin-bottom: 5px;
+    border-bottom: none; 
 }
 
-.project-card p {
+.auth-form div {
+    margin-bottom: 18px;
+    text-align: left;
+}
+
+.auth-form label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+    color: #495057;
     font-size: 0.9em;
-    margin-bottom: 5px;
 }
 
-.project-card .category {
-    font-size: 0.8em;
-    color: #666;
-    background-color: #e9ecef;
-    padding: 2px 6px;
-    border-radius: 3px;
-    display: inline-block;
-    margin-bottom: 10px;
+.auth-form input[type="text"],
+.auth-form input[type="email"],
+.auth-form input[type="password"] {
+    width: 100%;
+    padding: 11px 14px; /* Ajustado */
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 1em;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.project-card .delete-btn {
-    background-color: #dc3545;
-    color: white;
+.auth-form input[type="text"]:focus,
+.auth-form input[type="email"]:focus,
+.auth-form input[type="password"]:focus {
+    border-color: #fca311;
+    outline: none;
+    box-shadow: 0 0 0 0.18rem rgba(252, 163, 17, 0.2); /* Ajustado */
+}
+
+.auth-form button[type="submit"] {
+    background-color: #3a506b;
+    color: #ffffff;
+    padding: 11px 20px;
     border: none;
-    padding: 5px 10px;
-    border-radius: 3px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 0.8em;
+    font-size: 1.05em;
+    font-weight: bold;
+    width: 100%;
+    transition: background-color 0.2s ease;
     margin-top: 10px;
 }
-.project-card .delete-btn:hover {
-    background-color: #c82333;
+
+.auth-form button[type="submit"]:hover {
+    background-color: #2c3e50;
 }
 
-
-footer {
-    text-align: center;
-    padding: 20px;
-    background-color: #333;
-    color: #fff;
-    margin-top: 30px;
-}
-/* public/style.css - Adicionar no final */
-.comments-section {
+.toggle-form-link {
     margin-top: 20px;
-    padding-top: 15px;
-    border-top: 1px solid #eee;
+    font-size: 0.85em;
+    color: #6c757d;
 }
+.toggle-form-link a { color: #3a506b; text-decoration: none; font-weight: bold; }
+.toggle-form-link a:hover { text-decoration: underline; }
 
-.comments-section h4 {
-    margin-bottom: 10px;
-    color: #333;
-}
 
-.comments-list .comment-item {
-    background-color: #f9f9f9;
-    padding: 8px 12px;
-    border-radius: 4px;
-    margin-bottom: 8px;
-    border: 1px solid #eaeaea;
-}
 
-.comment-item p {
-    margin: 0 0 5px 0;
-    font-size: 0.9em;
-    word-wrap: break-word; /* Para quebrar palavras longas */
-}
-.comment-item p:last-child {
-    margin-bottom: 0;
-}
 
-.comment-item strong {
-    color: #2a4262; /* Um pouco mais escuro que o texto do comentário */
-}
- .comment-item small {
-     color: #777;
-     font-size: 0.8em;
- }
+#addProjectForm div, #editProjectForm div { margin-bottom: 15px; }
+#addProjectForm label, #editProjectForm label { display: block; margin-bottom: 5px; font-weight: bold; }
 
-.add-comment-form textarea {
-    width: calc(100% - 22px); /* Ajuste para padding e borda */
+#addProjectForm input[type="text"],
+#addProjectForm textarea,
+#editProjectForm input[type="text"],
+#editProjectForm textarea {
+    width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    margin-bottom: 8px;
-    resize: vertical;
-    min-height: 40px;
+}
+#addProjectForm textarea, #editProjectForm textarea { resize: vertical; min-height: 60px; }
+
+#addProjectForm button[type="submit"],
+#editProjectForm button[type="submit"] {
+    background-color: #fca311; color: #333; padding: 10px 15px;
+    border: none; border-radius: 4px; cursor: pointer;
+    font-size: 1em; font-weight: bold; transition: background-color 0.3s ease;
+}
+#addProjectForm button[type="submit"]:hover,
+#editProjectForm button[type="submit"]:hover { background-color: #e0900a; }
+
+#editProjectForm button[type="button"] { /* Cancelar Edição */
+    background-color: #6c757d; color: white; margin-left: 10px;
+    padding: 10px 15px; border: none; border-radius: 4px;
+    cursor: pointer; font-size: 1em; font-weight: bold;
+}
+#editProjectForm button[type="button"]:hover { background-color: #5a6268; }
+
+input[type="file"] {
+    padding: 8px; border: 1px solid #ccc; border-radius: 4px;
+    display: block; width: 100%; margin-bottom: 10px;
+    background-color: #fff; cursor: pointer;
 }
 
+/* Grid de Projetos e Cards */
+#projectsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); /* Ajustado */
+    gap: 20px;
+}
+.project-card {
+    border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px;
+    background-color: #fdfdfd; box-shadow: 0 2px 5px rgba(0,0,0,0.07);
+    display: flex; flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.project-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+.project-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 6px; margin-bottom: 12px; }
+.project-card h3 { color: #3a506b; margin-top: 0; margin-bottom: 8px; font-size: 1.2em; }
+.project-card p { font-size: 0.9em; margin-bottom: 8px; flex-grow: 1; }
+.project-card p.category, .project-card p.creator { font-size: 0.75em; color: #555; margin-bottom: 8px; flex-grow: 0; }
+.project-card p.category { background-color: #e9ecef; padding: 2px 7px; border-radius: 10px; display: inline-block; }
+.project-card .actions { margin-top: auto; padding-top: 10px; display: flex; gap: 8px; }
+.project-card .edit-btn, .project-card .delete-btn {
+    padding: 5px 10px; border-radius: 4px; cursor: pointer;
+    font-size: 0.75em; font-weight: bold; border: none; transition: background-color 0.2s ease;
+}
+.project-card .edit-btn { background-color: #5bc0de; color: white; }
+.project-card .edit-btn:hover { background-color: #31b0d5; }
+.project-card .delete-btn { background-color: #d9534f; color: white; }
+.project-card .delete-btn:hover { background-color: #c9302c; }
+
+/* Seção de Comentários */
+.comments-section { margin-top: 15px; padding-top: 12px; border-top: 1px solid #eee; }
+.comments-section h4 { margin-bottom: 8px; color: #444; font-size: 1.05em; }
+.comments-list .comment-item {
+    background-color: #f8f9fa; padding: 8px 12px; border-radius: 5px;
+    margin-bottom: 8px; border: 1px solid #e9ecef;
+}
+.comment-item p { margin: 0 0 4px 0; font-size: 0.85em; word-wrap: break-word; }
+.comment-item p:last-child { margin-bottom: 0; }
+.comment-item strong { color: #343a40; }
+.comment-item small { color: #6c757d; font-size: 0.75em; }
+.add-comment-form textarea {
+    width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;
+    margin-bottom: 6px; resize: vertical; min-height: 45px; font-size: 0.9em;
+}
 .add-comment-form button {
-    background-color: #5cb85c; /* Verde para comentar */
-    color: white;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9em;
+    background-color: #28a745; color: white; padding: 7px 12px;
+    border: none; border-radius: 4px; cursor: pointer;
+    font-size: 0.85em; transition: background-color 0.2s ease;
 }
+.add-comment-form button:hover { background-color: #218838; }
 
-.add-comment-form button:hover {
-    background-color: #4cae4c;
+/* Footer */
+footer {
+    text-align: center; padding: 20px; background-color: #2c3e50;
+    color: #ecf0f1; margin-top: 30px; font-size: 0.85em;
 }
