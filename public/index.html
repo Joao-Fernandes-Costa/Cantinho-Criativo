@@ -80,7 +80,37 @@
                 <button type="submit">Adicionar Projeto</button>
             </form>
         </section>
-
+        <section id="edit-form-section" style="display:none;">
+            <h2>Editar Projeto</h2>
+            <form id="editProjectForm">
+                <input type="hidden" id="editProjectId" name="editProjectId"> {/* Para guardar o ID do projeto sendo
+                editado */}
+                <div>
+                    <label for="editTitle">Título:</label>
+                    <input type="text" id="editTitle" name="editTitle" required>
+                </div>
+                <div>
+                    <label for="editDescription">Descrição:</label>
+                    <textarea id="editDescription" name="editDescription" rows="3" required></textarea>
+                </div>
+                <div>
+                    <label for="editCategory">Categoria:</label>
+                    <input type="text" id="editCategory" name="editCategory" placeholder="Ex: Costura">
+                </div>
+                <div>
+                    <label>Imagem Atual:</label>
+                    <img id="currentEditImage" src="#" alt="Imagem Atual"
+                        style="max-width: 200px; display: block; margin-bottom: 10px;">
+                    <label for="editProjectImageFile">Nova Imagem (opcional):</label>
+                    <input type="file" id="editProjectImageFile" name="projectImage"
+                        accept="image/png, image/jpeg, image/gif">
+                    {/* 'name' deve ser 'projectImage' para corresponder ao upload.single('projectImage') no backend */}
+                </div>
+                <button type="submit">Salvar Alterações</button>
+                <button type="button" id="cancelEditButton">Cancelar</button>
+            </form>
+        </section>
+        
         <section id="projects-section">
             <h2>Projetos Recentes</h2>
             <div id="projectsGrid">
