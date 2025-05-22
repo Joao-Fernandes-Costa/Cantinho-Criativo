@@ -305,3 +305,64 @@ footer {
     text-align: center; padding: 20px; background-color: #2c3e50;
     color: #ecf0f1; margin-top: 30px; font-size: 0.85em;
 }
+/* public/style.css - Adicionar no final ou em local apropriado */
+
+.comment-item {
+    position: relative; /* Para posicionar botões de ação se necessário */
+}
+
+
+
+.comment-actions {
+    margin-top: 5px;
+    display: flex;
+    gap: 8px; /* Espaço entre botões de comentário */
+}
+
+.comment-actions button {
+    font-size: 0.75em;
+    padding: 3px 7px;
+    border-radius: 3px;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.edit-comment-btn {
+    background-color: #f0ad4e; /* Laranja para editar */
+    color: white;
+    border-color: #eea236;
+}
+.edit-comment-btn:hover { background-color: #ec971f; }
+
+.delete-comment-btn {
+    background-color: #d9534f; /* Vermelho para excluir */
+    color: white;
+    border-color: #d43f3a;
+}
+.delete-comment-btn:hover { background-color: #c9302c; }
+
+.edit-comment-textarea {
+    width: calc(100% - 10px); /* Ocupa a largura, com pequeno padding */
+    padding: 5px;
+    margin-top: 5px; /* Espaço acima do textarea */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 0.9em; /* Mesmo tamanho do texto do comentário */
+    min-height: 50px;
+    box-sizing: border-box;
+}
+
+.save-edited-comment-btn {
+    background-color: #5cb85c; /* Verde para salvar */
+    color: white;
+    border-color: #4cae4c;
+}
+.save-edited-comment-btn:hover { background-color: #4cae4c; }
+
+.cancel-edit-comment-btn {
+    background-color: #777; /* Cinza para cancelar */
+    color: white;
+    border-color: #666;
+}
+.cancel-edit-comment-btn:hover { background-color: #666; }
