@@ -298,75 +298,220 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // --- Funções para Comentários ---
-    async function fetchAndDisplayComments(projectId, commentsContainer) {
-        if (!commentsContainer) return;
-        try {
-            const response = await fetch(`${apiUrlBase}/projects/${projectId}/comments`);
-            if (!response.ok) {
-                console.error(`Erro ${response.status} ao buscar comentários para ${projectId}`);
-                commentsContainer.innerHTML = '<small>Não foi possível carregar comentários.</small>';
-                return;
-            }
-            const comments = await response.json();
-            if (comments.length === 0) {
-                commentsContainer.innerHTML = '<small>Nenhum comentário. Seja o primeiro!</small>';
-                return;
-            }
-            commentsContainer.innerHTML = '';
-            comments.forEach(comment => {
-                const commentDiv = document.createElement('div');
-                commentDiv.classList.add('comment-item');
-                const commentDate = new Date(comment.createdAt).toLocaleString('pt-BR', {dateStyle: 'short', timeStyle: 'short'});
-                commentDiv.innerHTML = `
-                    <p><strong>${comment.user ? comment.user.username : 'Anônimo'}</strong> <small>em ${commentDate}</small></p>
-                    <p>${comment.text ? comment.text.replace(/\n/g, '<br>') : ''}</p> 
-                `;
-                commentsContainer.appendChild(commentDiv);
-            });
-        } catch (error) {
-            console.error(`Erro na requisição de comentários para ${projectId}:`, error);
-            commentsContainer.innerHTML = '<small>Erro ao carregar comentários.</small>';
-        }
-    }
+    // public/script.js
+// ... (funções existentes) ...
 
-    // --- Listener Global para Ações em Projetos e Comentários (Delegação de Eventos) ---
+async function fetchAndDisplayComments(projectId, commentsContainerElement) {
+    if (!commentsContainerElement) return;
+    const currentUserId = getCurrentUserId(); // Pega o ID do usuário logado
+
+    try {
+        const response = await fetch(`${apiUrlBase}/projects/${projectId}/comments`);
+        if (!response.ok) {
+            console.error(`Erro ao buscar comentários para o projeto ${projectId}: ${response.status}`);
+            commentsContainerElement.innerHTML = '<small>Não foi possível carregar os comentários.</small>';
+            return;
+        }
+        const comments = await response.json();
+
+        if (comments.length === 0) {
+            commentsContainerElement.innerHTML = '<small>Nenhum comentário ainda. Seja o primeiro!</small>';
+            return;
+        }
+
+        commentsContainerElement.innerHTML = ''; 
+        comments.forEach(comment => {
+            const commentDiv = document.createElement('div');
+            commentDiv.classList.add('comment-item');
+            commentDiv.setAttribute('id', `comment-${comment._id}`); // ID para fácil manipulação
+
+            const commentDate = new Date(comment.createdAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+            
+            let commentActions = '';
+            // Verifica se o usuário logado é o dono do comentário
+            if (currentUserId && comment.user && comment.user._id === currentUserId) {
+                commentActions = `
+                    <div class="comment-actions">
+                        <button class="edit-comment-btn" data-comment-id="${comment._id}" data-project-id="${projectId}">Editar</button>
+                        <button class="delete-comment-btn" data-comment-id="${comment._id}" data-project-id="${projectId}">Excluir</button>
+                    </div>
+                `;
+            }
+
+            commentDiv.innerHTML = `
+                <div class="comment-content">
+                    <p><strong>${comment.user ? comment.user.username : 'Anônimo'}</strong> <small>em ${commentDate}</small></p>
+                    <p class="comment-text">${comment.text ? comment.text.replace(/\n/g, '<br>') : ''}</p>
+                </div>
+                ${commentActions}
+            `;
+            commentsContainerElement.appendChild(commentDiv);
+        });
+    } catch (error) {
+        console.error(`Erro na requisição de comentários para o projeto ${projectId}:`, error);
+        commentsContainerElement.innerHTML = '<small>Erro ao carregar comentários.</small>';
+    }
+}
+
+    // public/script.js
+// ... (dentro do if (projectsGrid) { ... } event listener ) ...
+
+    // Modifique o listener de 'click' no projectsGrid para incluir ações de comentário
     if (projectsGrid) {
         projectsGrid.addEventListener('click', async (event) => {
             const target = event.target;
-            let projectId = target.dataset.id;
-            if (!projectId) {
-                const button = target.closest('.edit-btn, .delete-btn');
-                if (button) projectId = button.dataset.id;
-            }
-            if (!projectId) return;
+            let projectIdAttr = target.dataset.projectId; // Para ações de comentário
+            let commentIdAttr = target.dataset.commentId; // Para ações de comentário
 
-            if (target.classList.contains('edit-btn') || target.closest('.edit-btn')) {
+            // Delegação para botões de projeto (Editar/Deletar Projeto)
+            let projectIdForProjectAction = target.dataset.id;
+            if (!projectIdForProjectAction) {
+                const button = target.closest('.edit-btn, .delete-btn');
+                if (button) projectIdForProjectAction = button.dataset.id;
+            }
+
+            if (target.classList.contains('edit-btn') && projectIdForProjectAction && !commentIdAttr) { // Ação de Editar PROJETO
+                // ... (lógica existente para editar projeto) ...
+            } else if (target.classList.contains('delete-btn') && projectIdForProjectAction && !commentIdAttr) { // Ação de Deletar PROJETO
+                // ... (lógica existente para deletar projeto) ...
+            }
+            // Ações para Comentários
+            else if (target.classList.contains('delete-comment-btn')) {
+                const commentId = commentIdAttr;
+                const projectId = projectIdAttr; // Usado para recarregar os comentários do projeto certo
                 const token = getToken();
-                if (!token) { alert('Logue para editar.'); return; }
-                try {
-                    const response = await fetch(`${apiUrlBase}/projects/${projectId}`);
-                    if (!response.ok) throw new Error((await response.json()).message || 'Erro ao carregar projeto.');
-                    openEditForm(await response.json());
-                } catch (error) { console.error("Erro ao buscar para editar:", error); alert("Erro: " + error.message); }
-            } 
-            else if (target.classList.contains('delete-btn') || target.closest('.delete-btn')) {
-                const token = getToken();
-                if (!token) { alert('Logue para deletar.'); return; }
-                if (confirm('Deletar este projeto?')) {
+
+                if (!token) { alert('Você precisa estar logado.'); return; }
+                if (confirm('Tem certeza que deseja excluir este comentário?')) {
                     try {
-                        const response = await fetch(`${apiUrlBase}/projects/${projectId}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } });
+                        const response = await fetch(`${apiUrlBase}/comments/${commentId}`, {
+                            method: 'DELETE',
+                            headers: { 'Authorization': 'Bearer ' + token }
+                        });
                         const data = await response.json();
-                        if (!response.ok) throw new Error(data.message || 'Erro ao deletar.');
-                        fetchProjects();
-                        alert(data.message || 'Deletado!');
+                        if (!response.ok) throw new Error(data.message || 'Erro ao excluir comentário.');
+                        
+                        alert(data.message || 'Comentário excluído!');
+                        // Recarrega os comentários do projeto específico
+                        const commentsListContainer = document.getElementById(`comments-list-${projectId}`);
+                        if (commentsListContainer) {
+                            fetchAndDisplayComments(projectId, commentsListContainer);
+                        }
                     } catch (error) {
-                        console.error('Erro ao deletar:', error);
-                        if (error.name === 'SyntaxError' && error.message.includes('<')) alert('Erro: Resposta inesperada.'); else alert('Erro: ' + error.message);
+                        console.error('Erro ao excluir comentário:', error);
+                        alert('Erro: ' + error.message);
+                    }
+                }
+            } else if (target.classList.contains('edit-comment-btn')) {
+                const commentId = commentIdAttr;
+                const projectId = projectIdAttr;
+                handleEditComment(commentId, projectId); // Chama uma nova função para lidar com a UI de edição
+            }
+        });
+        // ... (listener de 'submit' para adicionar comentários existente) ...
+    }
+
+    // Nova função para lidar com a interface de edição de comentário
+    function handleEditComment(commentId, projectId) {
+        const commentItem = document.getElementById(`comment-${commentId}`);
+        if (!commentItem) return;
+
+        const commentContentDiv = commentItem.querySelector('.comment-content');
+        const commentTextP = commentItem.querySelector('.comment-text');
+        const commentActionsDiv = commentItem.querySelector('.comment-actions');
+        
+        if (!commentTextP || !commentActionsDiv || !commentContentDiv) return;
+
+        const currentText = commentTextP.innerText; // Ou .textContent. Cuidado com <br> se usou innerHTML antes.
+                                                    // Para pegar o texto como foi digitado, talvez precise buscar do servidor novamente ou armazenar
+
+        // Cria o textarea para edição
+        const editTextArea = document.createElement('textarea');
+        editTextArea.classList.add('edit-comment-textarea');
+        editTextArea.value = currentText; // Preenche com o texto atual
+        editTextArea.rows = 3;
+
+        // Cria botões Salvar e Cancelar
+        const saveButton = document.createElement('button');
+        saveButton.classList.add('save-edited-comment-btn');
+        saveButton.textContent = 'Salvar';
+        saveButton.dataset.commentId = commentId;
+        saveButton.dataset.projectId = projectId;
+
+        const cancelButton = document.createElement('button');
+        cancelButton.classList.add('cancel-edit-comment-btn');
+        cancelButton.textContent = 'Cancelar';
+        
+        // Substitui o texto e os botões
+        commentContentDiv.replaceChild(editTextArea, commentTextP); // Substitui o <p> pelo <textarea>
+        commentActionsDiv.innerHTML = ''; // Limpa botões antigos
+        commentActionsDiv.appendChild(saveButton);
+        commentActionsDiv.appendChild(cancelButton);
+
+        // Event listener para o botão Cancelar
+        cancelButton.addEventListener('click', () => {
+            // Restaura o conteúdo original (sem refazer fetch, para simplicidade)
+            commentContentDiv.replaceChild(commentTextP, editTextArea); // Restaura o <p>
+            // Recria os botões originais (ou busca e exibe os comentários novamente)
+            const commentsListContainer = document.getElementById(`comments-list-${projectId}`);
+            if (commentsListContainer) {
+                fetchAndDisplayComments(projectId, commentsListContainer); // Mais simples para restaurar
+            }
+        });
+
+        // Event listener para o botão Salvar (já delegado no projectsGrid, ou pode ser adicionado aqui)
+        // A lógica de salvar será adicionada no listener principal de 'click' em projectsGrid
+    }
+
+    // Adicionar lógica para salvar o comentário editado no listener de clique principal do projectsGrid
+    // (Continuação do listener de clique em projectsGrid)
+    if (projectsGrid) {
+        projectsGrid.addEventListener('click', async (event) => {
+            // ... (lógica existente para edit-btn, delete-btn, delete-comment-btn, edit-comment-btn) ...
+
+            if (event.target.classList.contains('save-edited-comment-btn')) {
+                const commentId = event.target.dataset.commentId;
+                const projectId = event.target.dataset.projectId;
+                const commentItem = document.getElementById(`comment-${commentId}`);
+                const editTextArea = commentItem.querySelector('.edit-comment-textarea');
+                
+                if (!editTextArea) return;
+                const newText = editTextArea.value.trim();
+                const token = getToken();
+
+                if (!newText) { alert('O comentário não pode estar vazio.'); return; }
+                if (!token) { alert('Você precisa estar logado.'); return; }
+
+                try {
+                    const response = await fetch(`${apiUrlBase}/comments/${commentId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + token
+                        },
+                        body: JSON.stringify({ text: newText })
+                    });
+                    const updatedComment = await response.json();
+                    if (!response.ok) throw new Error(updatedComment.message || 'Erro ao salvar comentário.');
+
+                    alert('Comentário atualizado!');
+                    // Atualiza a lista de comentários do projeto específico
+                    const commentsListContainer = document.getElementById(`comments-list-${projectId}`);
+                    if (commentsListContainer) {
+                        fetchAndDisplayComments(projectId, commentsListContainer);
+                    }
+                } catch (error) {
+                    console.error('Erro ao salvar comentário editado:', error);
+                    alert('Erro: ' + error.message);
+                    // Opcional: restaurar a UI se a edição falhar
+                    const commentsListContainer = document.getElementById(`comments-list-${projectId}`);
+                    if (commentsListContainer) {
+                        fetchAndDisplayComments(projectId, commentsListContainer);
                     }
                 }
             }
         });
+    
         projectsGrid.addEventListener('submit', async (event) => {
             if (event.target.classList.contains('add-comment-form')) {
                 event.preventDefault();
