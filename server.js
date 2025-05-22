@@ -10,6 +10,7 @@ const path = require('path');
 
 const projectRoutes = require('./routes/projects');
 const authRoutes = require('./routes/auth'); // Adiciona esta linha
+const userRoutes = require('./routes/users');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -44,3 +45,4 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // Adicion
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 // ...
+app.use('/api/users', userRoutes);

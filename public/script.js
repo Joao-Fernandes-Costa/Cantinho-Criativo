@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Elementos do DOM ---
-    // Certifique-se de que todos estes IDs existem no seu index.html!
+    // --- Elementos do DOM (Definidos uma vez no topo) ---
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
     const showRegisterLink = document.getElementById('showRegister');
@@ -8,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginRegisterFormsDiv = document.getElementById('login-register-forms');
     
     // Elementos da Navbar
-    const navProjectsLi = document.getElementById('nav-projects-li'); // Para controlar o link "Projetos"
+    const navProjectsLi = document.getElementById('nav-projects-li');
     const navAddProjectLi = document.getElementById('nav-add-project-li');
     const navAuthLi = document.getElementById('nav-auth-li');
     const navUserWelcomeLi = document.getElementById('nav-user-welcome-li');
@@ -18,11 +17,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Seções Principais da Página
     const authSection = document.getElementById('auth-section');
-    const addProjectFormSection = document.getElementById('form-section'); // Para adicionar projeto
+    const addProjectFormSection = document.getElementById('form-section');
     const projectsSection = document.getElementById('projects-section');
     const projectsGrid = document.getElementById('projectsGrid');
+    const projectsSectionTitle = document.getElementById('projects-section-title'); // Para título da seção de projetos
+    const showAllProjectsBtn = document.getElementById('show-all-projects-btn'); // Botão para ver todos os projetos
     
-    const editFormSection = document.getElementById('edit-form-section'); // Para editar projeto
+    const editFormSection = document.getElementById('edit-form-section');
     const editProjectForm = document.getElementById('editProjectForm');
     const editProjectIdField = document.getElementById('editProjectIdField');
     const editTitleInput = document.getElementById('editTitle');
@@ -36,16 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const apiUrlBase = '/api';
 
-    // --- Funções Auxiliares de Autenticação (Definidas uma vez) ---
+    // --- Funções Auxiliares de Autenticação ---
     function getToken() { return localStorage.getItem('authToken'); }
     function getCurrentUserId() { return localStorage.getItem('currentUserId'); }
     function getCurrentUsername() { return localStorage.getItem('currentUsername'); }
 
-    // --- Atualização da UI de Autenticação e Geral (Definida uma vez) ---
-    // public/script.js
-
-// ... (declarações de variáveis DOM como antes) ...
-
+    // --- Atualização da UI de Autenticação e Geral ---
     function updateAuthUI() {
         const token = getToken();
         const username = getCurrentUsername();
@@ -63,26 +60,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Seções da Página
         if (token && username) { // Usuário LOGADO
-            if (authSection) authSection.style.display = 'none'; // Esconde a seção de autenticação
-            if (addProjectFormSection) addProjectFormSection.style.display = 'block'; // Ou controle via clique na navbar
+            if (authSection) authSection.style.display = 'none';
+            if (addProjectFormSection) addProjectFormSection.style.display = 'block'; // Torna visível para o link da navbar
             if (projectsSection) projectsSection.style.display = 'block';
-            if (editFormSection) editFormSection.style.display = 'none';
+            if (editFormSection) editFormSection.style.display = 'none'; 
+            
+            // Resetar título da seção de projetos para o padrão ao logar/atualizar UI
+            if (projectsSectionTitle) projectsSectionTitle.textContent = 'Projetos Recentes';
+            if (showAllProjectsBtn) showAllProjectsBtn.style.display = 'none';
             
             fetchProjects();
         } else { // Usuário DESLOGADO
-            if (authSection) {
-                // Para MOSTRAR a seção #auth-section e PERMITIR que o CSS a defina como 'flex'
-                // Remova qualquer estilo 'display: none' que possa ter sido aplicado antes.
-                // Se ela não tiver 'display: none', ela assumirá o 'display' do CSS.
-                authSection.style.display = ''; // Isso remove o estilo inline 'display', permitindo que o CSS dite.
-                                                // Se o CSS tiver 'display: flex', ele será aplicado.
-                                                // Ou, se você sabe que o CSS tem 'display:flex', pode usar:
-                                                // authSection.style.display = 'flex'; // MAS ISSO TAMBÉM É INLINE.
-                                                // A melhor forma é garantir que o CSS tenha 'display:flex' e você só
-                                                // alterne entre 'none' e '' (para remover o 'none' inline).
-            }
-            
-            if (loginRegisterFormsDiv) loginRegisterFormsDiv.style.display = 'block'; // Forms internos podem ser block
+            if (authSection) authSection.style.display = ''; // Permite que o CSS dite (deve ser flex para centralizar)
+            if (loginRegisterFormsDiv) loginRegisterFormsDiv.style.display = 'block';
             if (loginForm) loginForm.style.display = 'block';
             if (registerForm) registerForm.style.display = 'none';
             
@@ -90,19 +80,42 @@ document.addEventListener('DOMContentLoaded', () => {
             if (projectsSection) projectsSection.style.display = 'none';
             if (editFormSection) editFormSection.style.display = 'none';
             if (projectsGrid) projectsGrid.innerHTML = '<p style="text-align:center; padding: 20px;">Faça login ou registre-se para ver e adicionar projetos.</p>';
+            
+            // Garante que o título e botão de "ver todos" estejam no estado padrão
+            if (projectsSectionTitle) projectsSectionTitle.textContent = 'Projetos Recentes';
+            if (showAllProjectsBtn) showAllProjectsBtn.style.display = 'none';
         }
     }
-// ... (resto do seu script.js)
+
+    // --- Manipuladores de Eventos de Autenticação ---
+    if (showRegisterLink) showRegisterLink.addEventListener('click', (e) => { e.preventDefault(); if (loginForm) loginForm.style.display = 'none'; if (registerForm) registerForm.style.display = 'block'; });
+    if (showLoginLink) showLoginLink.addEventListener('click', (e) => { e.preventDefault(); if (registerForm) registerForm.style.display = 'none'; if (loginForm) loginForm.style.display = 'block'; });
+
+    if (registerForm) registerForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const usernameInput = document.getElementById('registerUsername');
+        const emailInput = document.getElementById('registerEmail');
+        const passwordInput = document.getElementById('registerPassword');
+
+        if (!usernameInput || !emailInput || !passwordInput) { alert("Erro nos campos de registro."); return; }
+        const username = usernameInput.value;
+        const email = emailInput.value;
+        const password = passwordInput.value;
+        try {
+            const response = await fetch(`${apiUrlBase}/auth/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, email, password }) });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Falha no registro.');
+            alert(data.message || 'Registro bem-sucedido! Faça login.');
+            registerForm.reset();
+            if (showLoginLink) showLoginLink.click();
+        } catch (error) { alert('Erro no registro: ' + error.message); }
+    });
 
     if (loginForm) loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         const emailOrUsernameInput = document.getElementById('loginEmailOrUsername');
         const passwordInput = document.getElementById('loginPassword');
-
-        if (!emailOrUsernameInput || !passwordInput) {
-            alert("Erro: Elementos do formulário de login não encontrados.");
-            return;
-        }
+        if (!emailOrUsernameInput || !passwordInput) { alert("Erro nos campos de login."); return;}
         const emailOrUsername = emailOrUsernameInput.value;
         const password = passwordInput.value;
         try {
@@ -112,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('authToken', data.token);
             localStorage.setItem('currentUserId', data.userId);
             localStorage.setItem('currentUsername', data.username);
-            alert('Login realizado com sucesso!');
+            alert('Login realizado!');
             loginForm.reset();
             updateAuthUI();
             window.location.hash = ''; 
@@ -125,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.removeItem('authToken');
             localStorage.removeItem('currentUserId');
             localStorage.removeItem('currentUsername');
-            alert('Logout realizado com sucesso.');
+            alert('Logout realizado.');
             updateAuthUI();
             window.location.hash = ''; 
             window.location.hash = 'auth-section';
@@ -133,69 +146,79 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Funções de CRUD de Projetos ---
-    async function fetchProjects() {
-        if (!projectsGrid) return; 
-        const token = getToken(); 
-        if (!token && projectsSection && projectsSection.style.display !== 'none') {
-            if (projectsSection) projectsSection.style.display = 'none';
-            projectsGrid.innerHTML = '<p style="text-align:center; padding: 20px;">Faça login ou registre-se para ver e adicionar projetos.</p>';
+    async function renderProjects(projectsToRender, isUserProfileView = false, profileUsername = '') {
+        if (!projectsGrid) return;
+        projectsGrid.innerHTML = '';
+
+        if (projectsToRender.length === 0) {
+            if (isUserProfileView) {
+                projectsGrid.innerHTML = `<p>${profileUsername} ainda não enviou projetos.</p>`;
+            } else {
+                projectsGrid.innerHTML = (getToken()) ? '<p>Nenhum projeto encontrado. Adicione um!</p>' : '<p style="text-align:center; padding: 20px;">Faça login ou registre-se para ver projetos.</p>';
+            }
             return;
         }
-        if (!token) return;
 
+        const currentUserId = getCurrentUserId();
+        const token = getToken();
+
+        projectsToRender.forEach(project => {
+            const projectCard = document.createElement('div');
+            projectCard.classList.add('project-card');
+            const projectOwnerId = project.user && project.user._id ? project.user._id : project.user;
+            let ownerActions = '';
+            if (currentUserId && projectOwnerId === currentUserId) {
+                ownerActions = `
+                    <button class="edit-btn" data-id="${project._id}">Editar</button>
+                    <button class="delete-btn" data-id="${project._id}">Deletar</button>
+                `;
+            }
+            
+            const creatorUsername = project.user ? (project.user.username || 'Anônimo') : 'Anônimo';
+            // Link para perfil do criador, a menos que já esteja na visualização do perfil desse usuário
+            const creatorDisplay = (isUserProfileView && project.user && project.user.username === profileUsername) 
+                ? creatorUsername 
+                : `<span class="creator-link" data-userid="${projectOwnerId}" style="color: blue; cursor: pointer; text-decoration: underline;">${creatorUsername}</span>`;
+
+            projectCard.innerHTML = `
+                <img src="${project.imageUrl || 'https://via.placeholder.com/300x200.png?text=Imagem+Padrão'}" alt="${project.title}">
+                <h3>${project.title}</h3>
+                <p class="category">Categoria: ${project.category || 'N/A'}</p>
+                <p class="creator">Criador: ${creatorDisplay}</p>
+                <p>${project.description ? project.description.replace(/\n/g, '<br>') : ''}</p>
+                <div class="actions">${ownerActions}</div>
+                <div class="comments-section">
+                    <h4>Comentários</h4>
+                    <div class="comments-list" id="comments-list-${project._id}"><small>Carregando...</small></div>
+                    ${token ? `
+                    <form class="add-comment-form" data-project-id="${project._id}">
+                        <textarea name="commentText" placeholder="Adicione um comentário..." rows="2" required></textarea>
+                        <button type="submit">Comentar</button>
+                    </form>
+                    ` : '<p><small>Faça login para comentar.</small></p>'}
+                </div>
+            `;
+            projectsGrid.appendChild(projectCard);
+            const commentsListContainer = projectCard.querySelector(`#comments-list-${project._id}`);
+            if (commentsListContainer) {
+                fetchAndDisplayComments(project._id, commentsListContainer);
+            }
+        });
+    }
+
+    async function fetchProjects() {
+        if (!getToken()) return; // Só busca se logado
         try {
             const response = await fetch(`${apiUrlBase}/projects`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const projects = await response.json();
-            projectsGrid.innerHTML = '';
-            if (projects.length === 0) {
-                projectsGrid.innerHTML = (getToken()) ? '<p>Nenhum projeto encontrado. Adicione um!</p>' : '<p style="text-align:center; padding: 20px;">Faça login ou registre-se para ver e adicionar projetos.</p>';
-                return;
-            }
-            const currentUserId = getCurrentUserId();
-
-            projects.forEach(project => {
-                const projectCard = document.createElement('div');
-                projectCard.classList.add('project-card');
-                const projectOwnerId = project.user && project.user._id ? project.user._id : project.user;
-                let ownerActions = '';
-                if (currentUserId && projectOwnerId === currentUserId) {
-                    ownerActions = `
-                        <button class="edit-btn" data-id="${project._id}">Editar</button>
-                        <button class="delete-btn" data-id="${project._id}">Deletar</button>
-                    `;
-                }
-                const creatorUsername = project.user ? (project.user.username || 'Anônimo') : 'Anônimo';
-                projectCard.innerHTML = `
-                    <img src="${project.imageUrl || 'https://via.placeholder.com/300x200.png?text=Imagem+Padrão'}" alt="${project.title}">
-                    <h3>${project.title}</h3>
-                    <p class="category">Categoria: ${project.category || 'N/A'}</p>
-                    <p class="creator">Criador: ${creatorUsername}</p>
-                    <p>${project.description ? project.description.replace(/\n/g, '<br>') : ''}</p>
-                    <div class="actions">${ownerActions}</div>
-                    <div class="comments-section">
-                        <h4>Comentários</h4>
-                        <div class="comments-list" id="comments-list-${project._id}"><small>Carregando...</small></div>
-                        ${token ? `
-                        <form class="add-comment-form" data-project-id="${project._id}">
-                            <textarea name="commentText" placeholder="Adicione um comentário..." rows="2" required></textarea>
-                            <button type="submit">Comentar</button>
-                        </form>
-                        ` : '<p><small>Faça login para comentar.</small></p>'}
-                    </div>
-                `;
-                projectsGrid.appendChild(projectCard);
-                const commentsListContainer = projectCard.querySelector(`#comments-list-${project._id}`);
-                if (commentsListContainer) {
-                    fetchAndDisplayComments(project._id, commentsListContainer);
-                }
-            });
+            renderProjects(projects); // Usa a nova função de renderização
         } catch (error) {
             console.error('Erro ao buscar projetos:', error);
             if (projectsGrid) projectsGrid.innerHTML = '<p>Erro ao carregar projetos.</p>';
         }
     }
-
+    
     if (projectFormForAdd) projectFormForAdd.addEventListener('submit', async (event) => {
         event.preventDefault();
         const titleEl = document.getElementById('title');
@@ -203,17 +226,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const categoryEl = document.getElementById('category');
         const projectImageFileEl = document.getElementById('projectImageFile');
         
-        if(!titleEl || !descriptionEl || !categoryEl || !projectImageFileEl) {
-             alert("Erro: Campos do formulário de adicionar projeto não encontrados."); return; 
-        }
+        if(!titleEl || !descriptionEl || !categoryEl || !projectImageFileEl) { alert("Campos do formulário não encontrados."); return; }
 
         const title = titleEl.value;
         const description = descriptionEl.value;
         const category = categoryEl.value;
         const projectImageFile = projectImageFileEl.files[0];
-
         const token = getToken();
-        if (!token) { alert('Você precisa estar logado.'); return; }
+
+        if (!token) { alert('Logue para adicionar projeto.'); return; }
         if (!projectImageFile) { alert('Selecione uma imagem.'); return; }
 
         const formData = new FormData();
@@ -227,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || `HTTP error! status: ${response.status}`);
             projectFormForAdd.reset();
-            fetchProjects(); 
+            updateAuthUI(); // Para re-exibir fetchProjects corretamente
             window.location.hash = '#projects-section'; 
             alert('Projeto adicionado!');
         } catch (error) { console.error('Erro ao adicionar projeto:', error); alert('Erro: ' + error.message); }
@@ -236,8 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Funções para Edição de Projeto ---
     function openEditForm(project) {
         if (!editFormSection || !editProjectIdField || !editTitleInput || !editDescriptionInput || !editCategoryInput || !currentEditImage || !editProjectImageFileInput) {
-            console.error("Um ou mais elementos do formulário de edição não foram encontrados.");
-            return;
+            console.error("Elementos do formulário de edição não encontrados."); return;
         }
         editProjectIdField.value = project._id;
         editTitleInput.value = project.title;
@@ -247,18 +267,16 @@ document.addEventListener('DOMContentLoaded', () => {
         editProjectImageFileInput.value = '';
         
         if (addProjectFormSection) addProjectFormSection.style.display = 'none';
-        if (projectsSection) projectsSection.style.display = 'none'; // Esconde a lista de projetos ao editar
+        if (projectsSection) projectsSection.style.display = 'none';
+        if (authSection) authSection.style.display = 'none';
         editFormSection.style.display = 'block';
         editFormSection.scrollIntoView({ behavior: 'smooth' });
     }
 
     function closeEditForm() {
         if (editFormSection) editFormSection.style.display = 'none';
-        if (getToken()) {
-             // Não mostra addProjectFormSection automaticamente, usuário usa navbar se quiser
-            if(projectsSection) projectsSection.style.display = 'block'; // Mostra a lista de projetos novamente
-            window.location.hash = '#projects-section';
-        }
+        updateAuthUI(); // Deixa updateAuthUI decidir o que mostrar
+        window.location.hash = '#projects-section';
     }
 
     if (cancelEditButton) cancelEditButton.addEventListener('click', closeEditForm);
@@ -266,7 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (editProjectForm) editProjectForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         if (!editProjectIdField || !editTitleInput || !editDescriptionInput || !editCategoryInput || !editProjectImageFileInput) { 
-            alert("Erro: Campos do formulário de edição não encontrados."); return;
+            alert("Campos do formulário de edição não encontrados."); return;
         }
         const projectId = editProjectIdField.value;
         const title = editTitleInput.value;
@@ -289,11 +307,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error(data.message || `HTTP error! status: ${response.status}`);
             alert('Projeto atualizado!');
             closeEditForm();
-            fetchProjects(); 
+            // fetchProjects(); // já é chamado por updateAuthUI que é chamado por closeEditForm
         } catch (error) {
             console.error('Erro ao atualizar projeto:', error);
             if (error.name === 'SyntaxError' && error.message.includes('<')) {
-                alert('Erro: Resposta inesperada do servidor. Verifique console do backend.');
+                alert('Erro: Resposta inesperada do servidor.');
             } else { alert('Erro: ' + error.message); }
         }
     });
@@ -304,14 +322,11 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch(`${apiUrlBase}/projects/${projectId}/comments`);
             if (!response.ok) {
-                console.error(`Erro ${response.status} ao buscar comentários para ${projectId}`);
-                commentsContainer.innerHTML = '<small>Não foi possível carregar comentários.</small>';
-                return;
+                commentsContainer.innerHTML = '<small>Erro ao carregar comentários.</small>'; return;
             }
             const comments = await response.json();
             if (comments.length === 0) {
-                commentsContainer.innerHTML = '<small>Nenhum comentário. Seja o primeiro!</small>';
-                return;
+                commentsContainer.innerHTML = '<small>Nenhum comentário ainda.</small>'; return;
             }
             commentsContainer.innerHTML = '';
             comments.forEach(comment => {
@@ -325,40 +340,92 @@ document.addEventListener('DOMContentLoaded', () => {
                 commentsContainer.appendChild(commentDiv);
             });
         } catch (error) {
-            console.error(`Erro na requisição de comentários para ${projectId}:`, error);
+            console.error(`Erro nos comentários para ${projectId}:`, error);
             commentsContainer.innerHTML = '<small>Erro ao carregar comentários.</small>';
         }
     }
 
-    // --- Listener Global para Ações em Projetos e Comentários (Delegação de Eventos) ---
+    // --- Funções para Perfil de Usuário ---
+    async function fetchAndDisplayUserProfile(userId) {
+        if (!projectsGrid || !projectsSectionTitle || !showAllProjectsBtn) return;
+        try {
+            const response = await fetch(`${apiUrlBase}/users/${userId}/profile`); // Corrigido para usar crases
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Não foi possível carregar o perfil.');
+            
+            const { user, projects } = data;
+
+            if (projectsSectionTitle) projectsSectionTitle.textContent = `Projetos de ${user.username}`;
+            if (showAllProjectsBtn) showAllProjectsBtn.style.display = 'inline-block';
+            
+            if (addProjectFormSection) addProjectFormSection.style.display = 'none';
+            if (editFormSection) editFormSection.style.display = 'none';
+            if (authSection) authSection.style.display = 'none'; // Garante que seção de auth está escondida
+            if (projectsSection) projectsSection.style.display = 'block'; // Garante que seção de projetos está visível
+
+
+            renderProjects(projects, true, user.username); // Passa flag e username para renderProjects
+
+        } catch (error) {
+            console.error("Erro ao buscar perfil:", error);
+            alert("Erro ao carregar perfil: " + error.message);
+            if (projectsGrid) projectsGrid.innerHTML = '<p>Não foi possível carregar o perfil.</p>';
+            if (projectsSectionTitle) projectsSectionTitle.textContent = 'Projetos Recentes';
+            if (showAllProjectsBtn) showAllProjectsBtn.style.display = 'none';
+        }
+    }
+    
+    if (showAllProjectsBtn) {
+        showAllProjectsBtn.addEventListener('click', () => {
+            if(projectsSectionTitle) projectsSectionTitle.textContent = 'Projetos Recentes';
+            showAllProjectsBtn.style.display = 'none';
+            fetchProjects(); 
+            window.location.hash = '#projects-section';
+        });
+    }
+
+    // --- Listener Global para Ações (Delegação de Eventos) ---
     if (projectsGrid) {
         projectsGrid.addEventListener('click', async (event) => {
             const target = event.target;
-            let projectId = target.dataset.id;
-            if (!projectId) {
-                const button = target.closest('.edit-btn, .delete-btn');
-                if (button) projectId = button.dataset.id;
-            }
-            if (!projectId) return;
+            let projectIdFromButton = null;
+            const editButton = target.closest('.edit-btn');
+            const deleteButton = target.closest('.delete-btn');
+            const creatorLink = target.closest('.creator-link');
 
-            if (target.classList.contains('edit-btn') || target.closest('.edit-btn')) {
+            if (editButton) projectIdFromButton = editButton.dataset.id;
+            else if (deleteButton) projectIdFromButton = deleteButton.dataset.id;
+
+            if (creatorLink) {
+                const userIdToView = creatorLink.dataset.userid;
+                if (userIdToView) {
+                    fetchAndDisplayUserProfile(userIdToView);
+                }
+            } else if (editButton && projectIdFromButton) {
                 const token = getToken();
                 if (!token) { alert('Logue para editar.'); return; }
                 try {
-                    const response = await fetch(`${apiUrlBase}/projects/${projectId}`);
+                    const response = await fetch(`${apiUrlBase}/projects/${projectIdFromButton}`);
                     if (!response.ok) throw new Error((await response.json()).message || 'Erro ao carregar projeto.');
                     openEditForm(await response.json());
                 } catch (error) { console.error("Erro ao buscar para editar:", error); alert("Erro: " + error.message); }
             } 
-            else if (target.classList.contains('delete-btn') || target.closest('.delete-btn')) {
+            else if (deleteButton && projectIdFromButton) {
                 const token = getToken();
                 if (!token) { alert('Logue para deletar.'); return; }
                 if (confirm('Deletar este projeto?')) {
                     try {
-                        const response = await fetch(`${apiUrlBase}/projects/${projectId}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } });
+                        const response = await fetch(`${apiUrlBase}/projects/${projectIdFromButton}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } });
                         const data = await response.json();
                         if (!response.ok) throw new Error(data.message || 'Erro ao deletar.');
-                        fetchProjects();
+                        // Se estivermos na visualização de perfil de um usuário, recarregue o perfil, senão todos os projetos.
+                        if (showAllProjectsBtn && showAllProjectsBtn.style.display === 'inline-block') {
+                            const currentProfileUserId = projectsGrid.dataset.profileUserId; // Precisamos de uma forma de saber qual perfil está sendo visto
+                            if (currentProfileUserId) fetchAndDisplayUserProfile(currentProfileUserId);
+                            else fetchProjects(); // Fallback
+                        } else {
+                            fetchProjects();
+                        }
                         alert(data.message || 'Deletado!');
                     } catch (error) {
                         console.error('Erro ao deletar:', error);
@@ -367,6 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
+
         projectsGrid.addEventListener('submit', async (event) => {
             if (event.target.classList.contains('add-comment-form')) {
                 event.preventDefault();
