@@ -14,7 +14,7 @@
             <h1>🎨 Cantinho Criativo 🛠️</h1>
             <nav id="main-navbar">
                 <ul>
-                    {/* O link "Projetos" é controlado pelo script.js para aparecer apenas quando logado */}
+                    
                     <li id="nav-projects-li" style="display:none;"><a href="#projects-section">Projetos</a></li>
                     <li id="nav-add-project-li" style="display:none;"><a href="#form-section">Adicionar Projeto</a></li>
                     <li id="nav-auth-li"><a href="#auth-section">Login/Registro</a></li>
@@ -26,7 +26,6 @@
     </header>
 
     <main>
-        {/* A seção de autenticação será a primeira visível por padrão */}
         <section id="auth-section" class="page-section">
             <div id="login-register-forms">
                 <form id="loginForm" class="auth-form">
@@ -62,11 +61,11 @@
             </div>
         </section>
 
-        {/* Seção de Adicionar Projeto (começa oculta) */}
+        
         <section id="form-section" class="page-section" style="display:none;">
             <h2>Adicionar Novo Projeto</h2>
             <form id="addProjectForm">
-                {/* O input hidden para ID de projeto foi REMOVIDO daqui, pois não é necessário ao adicionar */}
+                
                 <div>
                     <label for="title">Título:</label>
                     <input type="text" id="title" name="title" required>
@@ -88,7 +87,7 @@
             </form>
         </section>
 
-        {/* Seção de Edição de Projeto (começa oculta) */}
+        
         <section id="edit-form-section" class="page-section" style="display:none;">
             <h2>Editar Projeto</h2>
             <form id="editProjectForm">
@@ -119,14 +118,14 @@
             </form>
         </section>
 
-        {/* Seção de Projetos (Galeria - começa oculta) */}
+        
         <section id="projects-section" class="page-section" style="display:none;">
             <h2>Projetos Recentes</h2>
             <div id="projectsGrid">
-                {/* Conteúdo será preenchido por JS */}
+                
             </div>
             <div id="projectsGrid">
-                {/* Conteúdo será preenchido por JS */}
+                
             </div>
         </section>
     </main>

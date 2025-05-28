@@ -1,4 +1,3 @@
-// routes/users.js
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
@@ -15,14 +14,14 @@ router.get('/:userId/profile', async (req, res) => {
 
     try {
         // Busca o usuário, selecionando apenas os campos públicos (exclui senha)
-        const user = await User.findById(userId).select('username email createdAt'); // Adicione outros campos que queira exibir, como 'email'
+        const user = await User.findById(userId).select('username email createdAt');
         if (!user) {
             return res.status(404).json({ message: 'Usuário não encontrado.' });
         }
 
         // Busca os projetos criados por este usuário
         const projects = await Project.find({ user: userId })
-            .populate('user', 'username') // Popula para consistência, embora já tenhamos o user
+            .populate('user', 'username') // Popula para consistência, embora o usuário principal já esteja sendo buscado
             .sort({ createdAt: -1 });
 
         res.json({ user, projects });
